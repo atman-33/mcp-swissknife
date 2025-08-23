@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import { datetimeModule } from './lib/datetime/index.js';
 import { obsidianModule } from './lib/obsidian/index.js';
 import { softwareDocgenModule } from './lib/software-docgen/index.js';
+import { webFetchModule } from './lib/web-fetch/index.js';
 import type { ServerConfig } from './types/index.js';
 import { createServer, startServer } from './utils/index.js';
 
@@ -72,7 +73,12 @@ program
 const serverConfig: ServerConfig = {
   name: 'mcp-swissknife',
   version: '1.0.0',
-  modules: [datetimeModule, obsidianModule, softwareDocgenModule],
+  modules: [
+    datetimeModule,
+    obsidianModule,
+    softwareDocgenModule,
+    webFetchModule,
+  ],
 };
 
 // Parse command line arguments and start server
