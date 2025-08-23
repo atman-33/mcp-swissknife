@@ -1,7 +1,11 @@
 {
   "name": "mcp-swissknife",
   "version": "0.1.0",
+  "type": "module",
   "main": "index.js",
+  "bin": {
+    "mcp-utils": "dist/index.js"
+  },
   "scripts": {
     "build:tsc": "tsc",
     "start": "node dist/index.js",
