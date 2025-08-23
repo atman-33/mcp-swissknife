@@ -11,6 +11,11 @@ export const SearchNotesArgsSchema = z.object({
   query: z.string(),
 });
 
+export const WriteNoteArgsSchema = z.object({
+  path: z.string(),
+  content: z.string(),
+});
+
 // Tool definitions
 export const obsidianTools: ToolDefinition[] = [
   {
@@ -34,5 +39,15 @@ Returns an array of note paths that match the query.
 Example: { "query": "meeting" }
 `,
     inputSchema: zodToJsonSchema(SearchNotesArgsSchema) as ToolInput,
+  },
+  {
+    name: 'write_note',
+    description: `
+Writes content to an Obsidian note. If the note at the specified path does not exist, it will be created. If it exists, its content will be overwritten.
+The "path" argument must be a string representing the relative path of the note in the vault (e.g., "Daily/2025-08-23.md").
+The "content" argument must be a string containing the full content to write to the note.
+Example: { "path": "Daily/2025-08-23.md", "content": "# Daily Log\\n- Meeting with team\\n- Work on project X" }
+`,
+    inputSchema: zodToJsonSchema(WriteNoteArgsSchema) as ToolInput,
   },
 ];

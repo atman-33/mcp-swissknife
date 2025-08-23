@@ -3,7 +3,11 @@ import path from 'node:path';
 import type { z } from 'zod';
 import type { ToolHandler, ToolHandlerMap } from '../../types/index.js';
 import { validatePath } from '../../utils/index.js';
-import { ReadNotesArgsSchema, SearchNotesArgsSchema } from './tools.js';
+import {
+  ReadNotesArgsSchema,
+  SearchNotesArgsSchema,
+  WriteNoteArgsSchema,
+} from './tools.js';
 
 // Maximum number of search results to return
 const SEARCH_LIMIT = 200;
@@ -131,6 +135,36 @@ async function handleSearchNotes(
 }
 
 /**
+ * Handler for writing content to a note
+ */
+async function handleWriteNote(
+  args: z.infer<typeof WriteNoteArgsSchema>,
+): Promise<{ content: { type: 'text'; text: string }[] }> {
+  if (vaultDirectories.length === 0) {
+    throw new Error(
+      'Obsidian vault path not configured. Use --vault-path option to specify vault directory.',
+    );
+  }
+
+  try {
+    const fullPath = path.join(vaultDirectories[0], args.path);
+    const validPath = await validatePath(fullPath, vaultDirectories);
+    await fs.writeFile(validPath, args.content, 'utf-8');
+    return {
+      content: [
+        {
+          type: 'text' as const,
+          text: `Note written successfully to ${args.path}`,
+        },
+      ],
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to write note to ${args.path}: ${errorMessage}`);
+  }
+}
+
+/**
  * Create a wrapped handler that validates arguments against a Zod schema
  */
 
@@ -153,4 +187,5 @@ function createHandler<T extends z.ZodTypeAny>(
 export const obsidianHandlers: ToolHandlerMap = new Map([
   ['read_notes', createHandler(ReadNotesArgsSchema, handleReadNotes)],
   ['search_notes', createHandler(SearchNotesArgsSchema, handleSearchNotes)],
+  ['write_note', createHandler(WriteNoteArgsSchema, handleWriteNote)],
 ]);
