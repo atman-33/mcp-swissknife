@@ -24,7 +24,8 @@ export default defineConfig({
         'node:path',
         'zod',
         'zod-to-json-schema',
-        'commander'
+        'commander',
+        'playwright-core'
       ],
       output: {
         banner: '#!/usr/bin/env node'
