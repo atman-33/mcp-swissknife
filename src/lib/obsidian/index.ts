@@ -7,7 +7,7 @@ import { setupVaultDirectories } from './validation.js';
 /**
  * Initialize Obsidian module with vault directories
  */
-async function initializeObsidian(config?: ModuleConfig): Promise<void> {
+async function initializeObsidian(config?: ModuleConfig): Promise<boolean> {
   const rawArgs = config?.args;
   const args: string[] =
     Array.isArray(rawArgs) && rawArgs.every((item) => typeof item === 'string')
@@ -15,24 +15,28 @@ async function initializeObsidian(config?: ModuleConfig): Promise<void> {
       : [];
 
   if (args.length === 0) {
-    console.error('Obsidian module initialized without vault path');
-    console.error(
-      'Note: Obsidian tools will not be available without --vault-path option',
-    );
+    // This is not a fatal error, just a note that the module is not active
+    // console.error('Obsidian module initialized without vault path');
+    // console.error(
+    //   'Note: Obsidian tools will not be available without --vault-path option',
+    // );
     setVaultDirectories([]);
-    return;
+    return false;
   }
 
   const vaultDirectories = setupVaultDirectories(args);
 
-  // Validate directories
-  await validateDirectories(args);
+  try {
+    // Validate directories
+    await validateDirectories(args);
+  } catch (error) {
+    console.error(`Error validating vault path: ${error}`);
+    return false;
+  }
 
   // Set vault directories for handlers
   setVaultDirectories(vaultDirectories);
-
-  console.error('Obsidian module initialized');
-  console.error('Allowed directories:', vaultDirectories);
+  return true;
 }
 
 /**

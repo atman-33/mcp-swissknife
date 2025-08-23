@@ -9,4 +9,5 @@ export const datetimeModule: ToolModule = {
   name: 'datetime',
   tools: datetimeTools,
   handlers: datetimeHandlers,
+  initialize: async () => true,
 };

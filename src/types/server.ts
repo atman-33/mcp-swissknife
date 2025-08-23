@@ -7,7 +7,7 @@ export interface ToolModule {
   name: string;
   tools: import('./tool.js').ToolDefinition[];
   handlers: import('./tool.js').ToolHandlerMap;
-  initialize?: (config?: ModuleConfig) => Promise<void>;
+  initialize?: (config?: ModuleConfig) => Promise<boolean>;
 }
 
 export interface ServerConfig {

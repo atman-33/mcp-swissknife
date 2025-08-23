@@ -9,14 +9,22 @@ import { createServer, startServer } from './utils/index.js';
  */
 async function initializeModules(config: {
   vaultPath?: string;
-}): Promise<void> {
+}): Promise<import('./types/index.js').ToolModule[]> {
+  const initializedModules: import('./types/index.js').ToolModule[] = [];
   for (const module of serverConfig.modules) {
     if (module.initialize) {
-      await module.initialize({
+      const success = await module.initialize({
         args: config.vaultPath ? [config.vaultPath] : [],
       });
+      if (success) {
+        initializedModules.push(module);
+      }
+    } else {
+      // If a module doesn't have an initialize function, assume it's always active
+      initializedModules.push(module);
     }
   }
+  return initializedModules;
 }
 
 /**
@@ -25,10 +33,21 @@ async function initializeModules(config: {
 async function runServer(config: { vaultPath?: string }): Promise<void> {
   try {
     // Initialize all modules
-    await initializeModules(config);
+    const loadedModules = await initializeModules(config);
+
+    if (loadedModules.length > 0) {
+      console.log(
+        'Loaded modules:',
+        loadedModules.map((m) => m.name).join(', '),
+      );
+    } else {
+      console.log('No modules loaded.');
+      // Optionally, exit if no modules are loaded
+      // process.exit(0);
+    }
 
     // Create and start server
-    const server = createServer(serverConfig);
+    const server = createServer({ ...serverConfig, modules: loadedModules });
     await startServer(server);
   } catch (error) {
     console.error('Fatal error running server:', error);
