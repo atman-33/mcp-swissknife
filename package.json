@@ -1,6 +1,6 @@
 {
   "name": "mcp-swissknife",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "main": "index.js",
   "bin": {
@@ -33,6 +33,25 @@
   },
   "homepage": "https://github.com/atman-33/mcp-swissknife#readme",
   "description": "A multi-purpose Model Context Protocol server providing utility tools for AI assistants",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "swissknife",
+    "tools",
+    "utilities",
+    "datetime",
+    "obsidian",
+    "software-documentation",
+    "web-fetch",
+    "ai-assistant",
+    "cli"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "package.json",
+    "LICENSE"
+  ],
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
     "@types/jsdom": "^21.1.7",
