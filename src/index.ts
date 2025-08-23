@@ -1,21 +1,19 @@
+import { Command } from 'commander';
 import { obsidianModule } from './lib/obsidian/index.js';
 import type { ServerConfig } from './types/index.js';
 import { createServer, startServer } from './utils/index.js';
 
-// Server configuration
-const serverConfig: ServerConfig = {
-  name: 'mcp-swissknife',
-  version: '1.0.0',
-  modules: [obsidianModule],
-};
-
 /**
- * Initialize all modules
+ * Initialize all modules with configuration
  */
-async function initializeModules(): Promise<void> {
+async function initializeModules(config: {
+  vaultPath?: string;
+}): Promise<void> {
   for (const module of serverConfig.modules) {
     if (module.initialize) {
-      await module.initialize();
+      await module.initialize({
+        args: config.vaultPath ? [config.vaultPath] : [],
+      });
     }
   }
 }
@@ -23,10 +21,10 @@ async function initializeModules(): Promise<void> {
 /**
  * Main server startup function
  */
-async function runServer(): Promise<void> {
+async function runServer(config: { vaultPath?: string }): Promise<void> {
   try {
     // Initialize all modules
-    await initializeModules();
+    await initializeModules(config);
 
     // Create and start server
     const server = createServer(serverConfig);
@@ -37,5 +35,24 @@ async function runServer(): Promise<void> {
   }
 }
 
-// Start the server
-runServer();
+// Setup CLI with commander
+const program = new Command();
+
+program
+  .name('mcp-swissknife')
+  .description('MCP Swiss Knife - Multi-purpose MCP server')
+  .version('1.0.0')
+  .option('--vault-path <path>', 'Path to Obsidian vault directory (optional)')
+  .action(async (options) => {
+    await runServer({ vaultPath: options.vaultPath });
+  });
+
+// Server configuration
+const serverConfig: ServerConfig = {
+  name: 'mcp-swissknife',
+  version: '1.0.0',
+  modules: [obsidianModule],
+};
+
+// Parse command line arguments and start server
+program.parse();

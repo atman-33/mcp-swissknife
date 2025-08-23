@@ -6,18 +6,25 @@ import { expandHome, normalizePath } from '../../utils/index.js';
  */
 export function setupVaultDirectories(args: string[]): string[] {
   if (args.length === 0) {
-    console.error('Usage: mcp-obsidian <vault-directory>');
-    process.exit(1);
+    return [];
   }
 
   // Normalize all paths consistently
   const initialDir = normalizePath(expandHome(args[0]));
-  const canonicalDir = normalizePath(fsSync.realpathSync(initialDir));
 
-  const vaultDirectories =
-    initialDir === canonicalDir
-      ? [initialDir] // no symlink → single entry
-      : [initialDir, canonicalDir];
+  try {
+    const canonicalDir = normalizePath(fsSync.realpathSync(initialDir));
 
-  return vaultDirectories;
+    const vaultDirectories =
+      initialDir === canonicalDir
+        ? [initialDir] // no symlink → single entry
+        : [initialDir, canonicalDir];
+
+    return vaultDirectories;
+  } catch (error) {
+    console.error(
+      `Error: Vault directory "${initialDir}" does not exist or is not accessible.`,
+    );
+    process.exit(1);
+  }
 }

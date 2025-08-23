@@ -21,6 +21,10 @@ export function setVaultDirectories(directories: string[]): void {
  * Search for notes in the allowed directories that match the query
  */
 async function searchNotes(query: string): Promise<string[]> {
+  if (vaultDirectories.length === 0) {
+    return [];
+  }
+
   const results: string[] = [];
 
   async function search(basePath: string, currentPath: string) {
@@ -64,6 +68,12 @@ async function searchNotes(query: string): Promise<string[]> {
  * Handler for reading multiple notes
  */
 async function handleReadNotes(args: any) {
+  if (vaultDirectories.length === 0) {
+    throw new Error(
+      'Obsidian vault path not configured. Use --vault-path option to specify vault directory.',
+    );
+  }
+
   const parsed = ReadNotesArgsSchema.safeParse(args);
   if (!parsed.success) {
     throw new Error(`Invalid arguments for read_notes: ${parsed.error}`);
@@ -95,6 +105,12 @@ async function handleReadNotes(args: any) {
  * Handler for searching notes
  */
 async function handleSearchNotes(args: any) {
+  if (vaultDirectories.length === 0) {
+    throw new Error(
+      'Obsidian vault path not configured. Use --vault-path option to specify vault directory.',
+    );
+  }
+
   const parsed = SearchNotesArgsSchema.safeParse(args);
   if (!parsed.success) {
     throw new Error(`Invalid arguments for search_notes: ${parsed.error}`);

@@ -23,7 +23,8 @@ export default defineConfig({
         'node:os',
         'node:path',
         'zod',
-        'zod-to-json-schema'
+        'zod-to-json-schema',
+        'commander'
       ],
       output: {
         banner: '#!/usr/bin/env node'
