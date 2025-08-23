@@ -15,19 +15,24 @@ export const SearchNotesArgsSchema = z.object({
 export const obsidianTools: ToolDefinition[] = [
   {
     name: 'read_notes',
-    description:
-      "Read the contents of multiple notes. Each note's content is returned with its " +
-      "path as a reference. Failed reads for individual notes won't stop " +
-      'the entire operation. Reading too many at once may result in an error.',
+    description: `
+Reads the contents of multiple notes from your Obsidian vault.
+Each note's content is returned with its path as a reference.
+The "paths" argument must be an array of strings, representing the relative paths of notes in the vault.
+Failed reads for individual notes won't stop the entire operation.
+Reading too many notes at once may result in an error.
+Example: { "paths": ["Daily/2025-08-23.md", "Projects/Idea.md"] }
+`,
     inputSchema: zodToJsonSchema(ReadNotesArgsSchema) as ToolInput,
   },
   {
     name: 'search_notes',
-    description:
-      'Searches for a note by its name. The search ' +
-      'is case-insensitive and matches partial names. ' +
-      'Queries can also be a valid regex. Returns paths of the notes ' +
-      'that match the query.',
+    description: `
+Searches for notes in your Obsidian vault by name.
+The search is case-insensitive and supports partial matches or valid regular expressions.
+Returns an array of note paths that match the query.
+Example: { "query": "meeting" }
+`,
     inputSchema: zodToJsonSchema(SearchNotesArgsSchema) as ToolInput,
   },
 ];
