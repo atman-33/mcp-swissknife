@@ -25,7 +25,7 @@ MCP Swiss Knife (`mcp-swissknife`) is a multi-purpose Model Context Protocol ser
 - **Module Structure**: Each module implements `ToolModule` interface with `name`, `description`, `tools`, `handlers`
 - **Error Handling**: Use structured error responses, console.error for logging
 - **Tool Registration**: All modules registered in `serverConfig.modules` array
-- **Binary Name**: Distributed as `mcp-utils` executable
+- **Binary Name**: Distributed as `mcp-swissknife` executable
 - **Initialization**: Modules with dependencies should implement `initialize()` method
 
 ## Configuration
