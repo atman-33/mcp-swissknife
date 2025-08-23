@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "name": "NPM Quality Check",
+  "description": "Automatically runs npm run quality command and fixes any errors that occur when TypeScript or configuration files are modified",
+  "version": "1",
+  "when": {
+    "type": "userTriggered",
+    "patterns": [
+      "src/**/*.ts",
+      "src/**/*.js",
+      "package.json",
+      "tsconfig.json",
+      "biome.json",
+      "vitest.config.ts"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Run npm run quality and fix any errors that occur. If there are linting errors, formatting issues, or type errors, please fix them automatically. If tests fail, analyze the failures and fix the underlying issues."
+  }
+}
