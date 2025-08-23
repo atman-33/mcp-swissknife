@@ -14,10 +14,10 @@ jobs:
           fetch-depth: 0
       - run: npm ci
 
-      - name: Copy example env files
-        run: |
-          cp .env.example .env
-          cp .env.example .dev.vars
+      # - name: Copy example env files
+        # run: |
+        #   cp .env.example .env
+        #   cp .env.example .dev.vars
 
       - run: npm run build
       - run: npm run check
