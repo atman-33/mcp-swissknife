@@ -21,7 +21,7 @@ export function setupVaultDirectories(args: string[]): string[] {
         : [initialDir, canonicalDir];
 
     return vaultDirectories;
-  } catch (error) {
+  } catch (_error) {
     console.error(
       `Error: Vault directory "${initialDir}" does not exist or is not accessible.`,
     );

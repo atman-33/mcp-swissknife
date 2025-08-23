@@ -10,7 +10,7 @@ export interface ToolDefinition {
   inputSchema: ToolInput;
 }
 
-export type ToolHandler = (args: any) => Promise<{
+export type ToolHandler = (args: unknown) => Promise<{
   content: Array<{ type: 'text'; text: string }>;
   isError?: boolean;
 }>;

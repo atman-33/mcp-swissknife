@@ -8,7 +8,11 @@ import { setupVaultDirectories } from './validation.js';
  * Initialize Obsidian module with vault directories
  */
 async function initializeObsidian(config?: ModuleConfig): Promise<void> {
-  const args = config?.args || [];
+  const rawArgs = config?.args;
+  const args: string[] =
+    Array.isArray(rawArgs) && rawArgs.every((item) => typeof item === 'string')
+      ? rawArgs
+      : [];
 
   if (args.length === 0) {
     console.error('Obsidian module initialized without vault path');

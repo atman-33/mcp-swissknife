@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import type { ToolHandlerMap } from '../../types/index.js';
+import type { z } from 'zod';
+import type { ToolHandler, ToolHandlerMap } from '../../types/index.js';
 import { validatePath } from '../../utils/index.js';
 import { ReadNotesArgsSchema, SearchNotesArgsSchema } from './tools.js';
 
@@ -67,20 +68,17 @@ async function searchNotes(query: string): Promise<string[]> {
 /**
  * Handler for reading multiple notes
  */
-async function handleReadNotes(args: any) {
+async function handleReadNotes(
+  args: z.infer<typeof ReadNotesArgsSchema>,
+): Promise<{ content: { type: 'text'; text: string }[] }> {
   if (vaultDirectories.length === 0) {
     throw new Error(
       'Obsidian vault path not configured. Use --vault-path option to specify vault directory.',
     );
   }
 
-  const parsed = ReadNotesArgsSchema.safeParse(args);
-  if (!parsed.success) {
-    throw new Error(`Invalid arguments for read_notes: ${parsed.error}`);
-  }
-
   const results = await Promise.all(
-    parsed.data.paths.map(async (filePath: string) => {
+    args.paths.map(async (filePath: string) => {
       try {
         const validPath = await validatePath(
           path.join(vaultDirectories[0], filePath),
@@ -104,19 +102,16 @@ async function handleReadNotes(args: any) {
 /**
  * Handler for searching notes
  */
-async function handleSearchNotes(args: any) {
+async function handleSearchNotes(
+  args: z.infer<typeof SearchNotesArgsSchema>,
+): Promise<{ content: { type: 'text'; text: string }[] }> {
   if (vaultDirectories.length === 0) {
     throw new Error(
       'Obsidian vault path not configured. Use --vault-path option to specify vault directory.',
     );
   }
 
-  const parsed = SearchNotesArgsSchema.safeParse(args);
-  if (!parsed.success) {
-    throw new Error(`Invalid arguments for search_notes: ${parsed.error}`);
-  }
-
-  const results = await searchNotes(parsed.data.query);
+  const results = await searchNotes(args.query);
   const limitedResults = results.slice(0, SEARCH_LIMIT);
 
   return {
@@ -135,8 +130,27 @@ async function handleSearchNotes(args: any) {
   };
 }
 
+/**
+ * Create a wrapped handler that validates arguments against a Zod schema
+ */
+
+function createHandler<T extends z.ZodTypeAny>(
+  schema: T,
+  handler: (
+    args: z.infer<T>,
+  ) => Promise<{ content: { type: 'text'; text: string }[] }>,
+): ToolHandler {
+  return async (args: unknown) => {
+    const parsed = schema.safeParse(args);
+    if (!parsed.success) {
+      throw new Error(`Invalid arguments: ${parsed.error}`);
+    }
+    return handler(parsed.data);
+  };
+}
+
 // Export handlers map
 export const obsidianHandlers: ToolHandlerMap = new Map([
-  ['read_notes', handleReadNotes],
-  ['search_notes', handleSearchNotes],
+  ['read_notes', createHandler(ReadNotesArgsSchema, handleReadNotes)],
+  ['search_notes', createHandler(SearchNotesArgsSchema, handleSearchNotes)],
 ]);

@@ -1,6 +1,6 @@
 // Server-related type definitions
 export interface ModuleConfig {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface ToolModule {

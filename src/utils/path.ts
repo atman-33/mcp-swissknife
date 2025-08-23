@@ -64,7 +64,7 @@ export async function validatePath(
       );
     }
     return realPath;
-  } catch (error) {
+  } catch (_error) {
     // For new files that don't exist yet, verify parent directory
     const parentDir = path.dirname(absolute);
     try {
