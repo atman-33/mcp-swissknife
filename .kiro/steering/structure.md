@@ -1,53 +1,88 @@
-# Project Structure
+---
+inclusion: always
+---
+
+# Project Structure & Architecture
 
 ## Directory Organization
 
 ```
 src/
-├── index.ts              # Main entry point with CLI setup
-├── lib/                  # Feature modules
-│   ├── datetime/         # Datetime utilities module
-│   │   ├── index.ts      # Module definition and exports
-│   │   ├── tools.ts      # Tool definitions and schemas
-│   │   └── handlers.ts   # Tool implementation handlers
-│   └── obsidian/         # Obsidian integration module
-│       ├── index.ts      # Module definition with initialization
-│       ├── tools.ts      # Tool definitions and schemas
-│       ├── handlers.ts   # Tool implementation handlers
-│       └── validation.ts # Module-specific validation logic
-├── types/                # TypeScript type definitions
-│   ├── index.ts          # Re-exports all types
-│   ├── server.ts         # Server and module configuration types
-│   └── tool.ts           # Tool-related type definitions
-└── utils/                # Shared utilities
-    ├── index.ts          # Re-exports all utilities
-    ├── path.ts           # Path manipulation utilities
-    ├── server.ts         # Server creation and startup logic
+├── index.ts              # Main entry point with CLI setup and server config
+├── lib/                  # Feature modules (each implements ToolModule interface)
+│   ├── datetime/         # Date/time utilities
+│   ├── obsidian/         # Obsidian vault integration
+│   ├── software-docgen/  # Documentation generation
+│   └── web-fetch/        # Web content fetching and processing
+├── types/                # Shared TypeScript definitions
+│   ├── server.ts         # ServerConfig, ToolModule interfaces
+│   └── tool.ts           # Tool-related types
+└── utils/                # Shared utilities and helpers
+    ├── path.ts           # Path manipulation
+    ├── server.ts         # MCP server creation logic
     └── validation.ts     # Common validation functions
 ```
 
-## Module Architecture Pattern
+## Module Architecture (Required Pattern)
 
-Each feature module follows a consistent structure:
+Every module in `src/lib/` MUST follow this exact structure:
 
-- **`index.ts`**: Module definition implementing `ToolModule` interface
-- **`tools.ts`**: Tool definitions with schemas and descriptions
-- **`handlers.ts`**: Implementation of tool handlers
-- **`validation.ts`**: Module-specific validation (optional)
+```typescript
+// src/lib/[module-name]/index.ts - Module definition
+export const moduleConfig: ToolModule = {
+  name: 'module-name',
+  description: 'Brief description',
+  tools: toolDefinitions,
+  handlers: toolHandlers,
+  initialize?: async (options) => { /* optional setup */ }
+};
 
-## Key Conventions
+// src/lib/[module-name]/tools.ts - Tool schemas with Zod
+export const toolDefinitions: Tool[] = [
+  {
+    name: 'tool_name',
+    description: 'What this tool does',
+    inputSchema: zodToJsonSchema(InputSchema)
+  }
+];
 
-- **Barrel Exports**: Each directory has an `index.ts` that re-exports everything
-- **File Extensions**: Always use `.js` extensions in import statements for ES modules
-- **Type Imports**: Use `import type` for type-only imports
-- **Module Registration**: All modules are registered in main `serverConfig` in `src/index.ts`
-- **Initialization**: Modules can optionally implement async `initialize()` method
-- **Error Handling**: Console.error for logging, structured error responses for tools
+// src/lib/[module-name]/handlers.ts - Implementation
+export const toolHandlers: Record<string, ToolHandler> = {
+  tool_name: async (args) => {
+    // Implementation with proper error handling
+    return { content: [{ type: 'text', text: result }] };
+  }
+};
+```
 
-## Adding New Modules
+## Critical Implementation Rules
 
-1. Create new directory under `src/lib/`
-2. Implement the standard module files (`index.ts`, `tools.ts`, `handlers.ts`)
-3. Define module following `ToolModule` interface
-4. Register module in main `serverConfig` array
-5. Add any CLI options needed for module configuration
+- **Module Registration**: Add new modules to `serverConfig.modules` array in `src/index.ts`
+- **Import Extensions**: Always use `.js` extensions in imports (ES modules requirement)
+- **Type Imports**: Use `import type` for type-only imports to avoid runtime dependencies
+- **Error Handling**: Return structured MCP responses, use `console.error()` for logging
+- **Async Patterns**: Use async/await consistently, implement `initialize()` for setup
+- **Schema Validation**: All tool inputs must use Zod schemas converted with `zodToJsonSchema`
+
+## File Naming & Organization
+
+- **Module Names**: Use kebab-case for directories (`web-fetch`, not `webFetch`)
+- **File Names**: Use kebab-case for multi-word files (`tool-handlers.ts`)
+- **Barrel Exports**: Each directory exports everything through `index.ts`
+- **Type Definitions**: Keep interfaces in `src/types/`, import as needed
+
+## Adding New Modules (Step-by-Step)
+
+1. **Create Module Directory**: `src/lib/[module-name]/`
+2. **Implement Required Files**: `index.ts`, `tools.ts`, `handlers.ts`
+3. **Follow Module Pattern**: Use exact structure shown above
+4. **Register Module**: Add to `serverConfig.modules` in `src/index.ts`
+5. **Add CLI Options**: If needed, extend Commander.js configuration
+6. **Test Integration**: Ensure module loads and tools are discoverable
+
+## Code Organization Principles
+
+- **Single Responsibility**: Each module handles one domain of functionality
+- **Dependency Injection**: Pass configuration through `initialize()` method
+- **Graceful Degradation**: Modules should handle missing dependencies elegantly
+- **Consistent Interfaces**: All modules implement the same `ToolModule` contract

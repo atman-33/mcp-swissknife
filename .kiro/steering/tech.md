@@ -1,48 +1,96 @@
-# Technology Stack
+---
+inclusion: always
+---
 
-## Build System & Tools
+# MCP Swiss Knife Development Guide
 
-- **Build Tool**: Vite for fast builds and development
-- **TypeScript**: Full TypeScript with strict mode enabled
-- **Package Manager**: npm with package-lock.json
-- **Linting & Formatting**: Biome (replaces ESLint + Prettier)
-- **Git Hooks**: Husky for pre-commit validation
+MCP Swiss Knife is a modular Model Context Protocol server providing utility tools for AI assistants. This guide covers essential patterns and conventions for development.
 
-## Runtime & Dependencies
+## Architecture & Module System
 
-- **Runtime**: Node.js with ES modules (`"type": "module"`)
-- **Target**: ES2022 with NodeNext module resolution
-- **Key Dependencies**:
-  - `@modelcontextprotocol/sdk`: Core MCP protocol implementation
-  - `commander`: CLI argument parsing
-  - `glob`: File pattern matching
-  - `zod-to-json-schema`: Schema validation and conversion
+### Required Module Structure
+Every module in `src/lib/` MUST follow this exact pattern:
 
-## Common Commands
+```typescript
+// src/lib/[module-name]/index.ts
+export const moduleConfig: ToolModule = {
+  name: 'module-name',
+  description: 'Brief description',
+  tools: toolDefinitions,
+  handlers: toolHandlers,
+  initialize?: async (options) => { /* optional setup */ }
+};
 
-```bash
-# Development
-npm run dev              # Start development server with vite-node
-npm run build           # Production build with Vite
-npm run build:tsc       # TypeScript compilation only
-npm start               # Run built application
+// src/lib/[module-name]/tools.ts
+export const toolDefinitions: Tool[] = [
+  {
+    name: 'tool_name',
+    description: 'What this tool does',
+    inputSchema: zodToJsonSchema(InputSchema)
+  }
+];
 
-# Code Quality
-npm run lint            # Check code with Biome
-npm run lint:fix        # Fix linting issues
-npm run format          # Format code with Biome
-npm run format:check    # Check formatting
-npm run check           # Run all Biome checks and fix
-npm run check:ci        # Run checks for CI (no fixes)
-npm run typecheck       # TypeScript type checking
-npm run quality         # Full quality check (typecheck + biome)
-npm run quality:fix     # Full quality check with fixes
+// src/lib/[module-name]/handlers.ts
+export const toolHandlers: Record<string, ToolHandler> = {
+  tool_name: async (args) => {
+    return { content: [{ type: 'text', text: result }] };
+  }
+};
 ```
 
-## Code Style
+### Adding New Modules
+1. Create directory: `src/lib/[module-name]/`
+2. Implement required files: `index.ts`, `tools.ts`, `handlers.ts`
+3. Register in `serverConfig.modules` array in `src/index.ts`
+4. Add CLI options if needed via Commander.js
 
-- **Quotes**: Single quotes preferred
-- **Semicolons**: Always required
-- **Indentation**: Spaces (configured in Biome)
-- **Import Organization**: Automatic with Biome
-- **File Extensions**: Use `.js` extensions in imports for ES modules
+## Critical Code Rules
+
+### Import & Module Requirements
+- **Import Extensions**: Always use `.js` extensions in imports (ES modules)
+- **Type Imports**: Use `import type` for type-only imports
+- **Barrel Exports**: Export everything through `index.ts` files
+
+### Naming Conventions
+- **Directories**: kebab-case (`web-fetch`, not `webFetch`)
+- **Files**: kebab-case for multi-word files
+- **Tools**: snake_case for MCP tool names (`get_current_datetime`)
+
+### Error Handling & Responses
+- Return structured MCP responses: `{ content: [{ type: 'text', text: result }] }`
+- Use `console.error()` for logging errors
+- Handle missing dependencies gracefully in `initialize()` methods
+
+### Schema Validation
+- All tool inputs MUST use Zod schemas
+- Convert schemas with `zodToJsonSchema()` for MCP compatibility
+- Define input schemas in `tools.ts` files
+
+## Technology Stack
+
+### Build & Runtime
+- **Build**: Vite with TypeScript (strict mode)
+- **Runtime**: Node.js ES modules (`"type": "module"`)
+- **Target**: ES2022 with NodeNext resolution
+- **Formatting**: Biome (single quotes, semicolons required)
+
+### Key Dependencies
+- `@modelcontextprotocol/sdk`: Core MCP implementation
+- `commander`: CLI argument parsing
+- `zod-to-json-schema`: Schema validation
+- `glob`: File pattern matching
+
+## Development Commands
+
+```bash
+npm run dev              # Development with vite-node
+npm run build           # Production build
+npm run quality:fix     # Format, lint, and typecheck
+npm run typecheck       # TypeScript validation only
+```
+
+## Current Modules
+- **datetime**: Date/time utilities
+- **obsidian**: Vault integration (requires `--vault-path`)
+- **software-docgen**: Documentation generation
+- **web-fetch**: Web content fetching and processing

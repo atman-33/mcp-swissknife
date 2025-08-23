@@ -1,17 +1,35 @@
-# Product Overview
+---
+inclusion: always
+---
 
-MCP Swiss Knife is a multi-purpose Model Context Protocol (MCP) server that provides a collection of utility tools for AI assistants. The server is designed with a modular architecture where different functionality is organized into separate modules.
+# MCP Swiss Knife - Product Guide
+
+MCP Swiss Knife (`mcp-swissknife`) is a multi-purpose Model Context Protocol server providing utility tools for AI assistants. Built with TypeScript and following MCP protocol standards.
+
+## Architecture Principles
+
+- **Modular Design**: Each feature is a self-contained module in `src/lib/`
+- **Tool-Based Interface**: All functionality exposed as MCP tools with Zod schemas
+- **Async Initialization**: Modules can implement optional `initialize()` for setup
+- **CLI Configuration**: Commander.js handles arguments and module configuration
 
 ## Current Modules
 
-- **Datetime Module**: Provides date and time manipulation utilities
-- **Obsidian Module**: Integrates with Obsidian vaults for note management and search functionality
+- **datetime**: Date/time utilities (`get_current_datetime`)
+- **obsidian**: Vault integration (`read_notes`, `search_notes`) - requires `--vault-path`
+- **software-docgen**: Documentation generation (`get_software_documentation_prompt`)
+- **web-fetch**: Web content tools (fetch, extract, search capabilities)
 
-## Key Features
+## Development Conventions
 
-- Modular plugin architecture for easy extension
-- CLI interface with configurable options
-- Vault path configuration for Obsidian integration
-- Built as a standalone executable with `mcp-utils` binary
+- **Module Structure**: Each module implements `ToolModule` interface with `name`, `description`, `tools`, `handlers`
+- **Error Handling**: Use structured error responses, console.error for logging
+- **Tool Registration**: All modules registered in `serverConfig.modules` array
+- **Binary Name**: Distributed as `mcp-utils` executable
+- **Initialization**: Modules with dependencies should implement `initialize()` method
 
-The project follows MCP protocol standards and is designed to be a Swiss Army knife of utilities for AI assistants working with various data sources and tools.
+## Configuration
+
+- **CLI Options**: Use Commander.js for new configuration options
+- **Module Dependencies**: Handle missing dependencies gracefully in `initialize()`
+- **Optional Features**: Modules should work independently when possible
