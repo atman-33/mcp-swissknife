@@ -13,7 +13,8 @@
     "check:ci": "biome check src/",
     "typecheck": "tsc --noEmit",
     "quality": "npm run typecheck && npm run check:ci",
-    "quality:fix": "npm run typecheck && npm run check"
+    "quality:fix": "npm run typecheck && npm run check",
+    "prepare": "husky"
   },
   "author": "atman-33",
   "license": "MIT",
@@ -29,6 +30,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
     "@types/node": "^24.3.0",
+    "husky": "^9.1.7",
     "shx": "^0.4.0",
     "typescript": "^5.9.2",
     "vite": "^7.1.3",
