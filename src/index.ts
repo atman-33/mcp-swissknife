@@ -12,9 +12,10 @@ import { createServer, startServer } from './utils/index.js';
  */
 async function initializeModules(config: {
   vaultPath?: string;
+  modules: import('./types/index.js').ToolModule[];
 }): Promise<import('./types/index.js').ToolModule[]> {
   const initializedModules: import('./types/index.js').ToolModule[] = [];
-  for (const module of serverConfig.modules) {
+  for (const module of config.modules) {
     if (module.initialize) {
       const success = await module.initialize({
         args: config.vaultPath ? [config.vaultPath] : [],
@@ -33,10 +34,21 @@ async function initializeModules(config: {
 /**
  * Main server startup function
  */
-async function runServer(config: { vaultPath?: string }): Promise<void> {
+async function runServer(config: {
+  vaultPath?: string;
+  disabledModules?: string[];
+}): Promise<void> {
   try {
-    // Initialize all modules
-    const loadedModules = await initializeModules(config);
+    // Filter out disabled modules
+    const enabledModules = serverConfig.modules.filter(
+      (module) => !config.disabledModules?.includes(module.name),
+    );
+
+    // Initialize enabled modules
+    const loadedModules = await initializeModules({
+      ...config,
+      modules: enabledModules,
+    });
 
     if (loadedModules.length > 0) {
       console.log(
@@ -66,8 +78,19 @@ program
   .description('MCP Swiss Knife - Multi-purpose MCP server')
   .version('1.0.0')
   .option('--vault-path <path>', 'Path to Obsidian vault directory (optional)')
+  .option(
+    '--disable <modules>',
+    'Comma-separated list of modules to disable (e.g., obsidian,web-fetch)',
+  )
   .action(async (options) => {
-    await runServer({ vaultPath: options.vaultPath });
+    const disabledModules = options.disable
+      ? options.disable.split(',').map((m: string) => m.trim())
+      : [];
+
+    await runServer({
+      vaultPath: options.vaultPath,
+      disabledModules,
+    });
   });
 
 // Server configuration

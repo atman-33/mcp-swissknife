@@ -7,6 +7,7 @@ A multi-purpose Model Context Protocol server providing utility tools for AI ass
 MCP Swiss Knife provides a modular collection of tools organized into focused modules:
 
 - **datetime**: Date and time utilities
+- **gemini-web-search**: AI-powered web search using Gemini with WebSearch capability
 - **obsidian**: Obsidian vault integration for note management
 - **software-docgen**: Documentation generation helpers
 - **web-fetch**: Web content fetching, extraction, and processing
@@ -29,6 +30,18 @@ npx mcp-swissknife
 
 This is the recommended approach for MCP configurations as it ensures you're always using the latest version.
 
+### Optional Dependencies
+
+#### Gemini CLI (for gemini-web-search module)
+
+To use the Gemini web search functionality, you need to install and configure the Gemini CLI:
+
+1. Install the Gemini CLI tool
+2. Configure it with your API key
+3. Ensure it's available in your PATH
+
+If the Gemini CLI is not available, the gemini-web-search module will be automatically disabled.
+
 ## Usage
 
 ### Basic Usage
@@ -50,6 +63,23 @@ mcp-swissknife --vault-path /path/to/your/obsidian/vault
 # Or using npx
 npx mcp-swissknife --vault-path /path/to/your/obsidian/vault
 ```
+
+### Disabling Modules
+
+You can disable specific modules using the `--disable` option:
+
+```bash
+# Disable a single module
+mcp-swissknife --disable obsidian
+
+# Disable multiple modules (comma-separated)
+mcp-swissknife --disable obsidian,web-fetch
+
+# Combine with other options
+mcp-swissknife --vault-path /path/to/vault --disable gemini-web-search
+```
+
+Available modules to disable: `datetime`, `gemini-web-search`, `obsidian`, `software-docgen`, `web-fetch`
 
 ## MCP Configuration
 
@@ -97,10 +127,27 @@ To use MCP Swiss Knife with MCP-compatible clients, add it to your MCP configura
 }
 ```
 
+### With Disabled Modules
+
+```json
+{
+  "mcpServers": {
+    "mcp-swissknife": {
+      "command": "npx",
+      "args": ["mcp-swissknife", "--disable", "obsidian,web-fetch"],
+      "env": {}
+    }
+  }
+}
+```
+
 ## Available Tools
 
 ### DateTime Module
 - `get_current_datetime` - Get current date and time in ISO 8601 format
+
+### Gemini Web Search Module (requires Gemini CLI)
+- `gemini_web_search` - Performs AI-powered web search using Gemini with WebSearch capability, providing comprehensive results with analysis and summarization
 
 ### Obsidian Module (requires --vault-path)
 - `read_notes` - Read contents of multiple notes from your vault
