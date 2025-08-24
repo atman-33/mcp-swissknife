@@ -6,9 +6,10 @@ import { GetSoftwareDocumentationPromptArgsSchema } from './tools.js';
  * Handler for getting software documentation prompt
  */
 async function handleGetSoftwareDocumentationPrompt(
-  _args: z.infer<typeof GetSoftwareDocumentationPromptArgsSchema>,
+  args: z.infer<typeof GetSoftwareDocumentationPromptArgsSchema>,
 ): Promise<{ content: { type: 'text'; text: string }[] }> {
-  const prompt = `You are an assistant for creating software project design documents.  Generate the following three Markdown files and output them under the \`.tmp/steering\` folder.
+  let prompt = `
+You are an assistant for creating software project design documents. Before generating any files, **analyze the current project structure, including root files, directories, and any relevant configuration files**, and use that analysis as the basis for the documentation. Then generate the following three Markdown files under the \`.tmp/steering\` folder.
 
 1. product.md
 - Provide a clear overview of the project
@@ -45,6 +46,13 @@ Format the output as follows:
 ---------------------
 # Technology Stack
 ...`;
+
+  // Add language specification if provided
+  if (args.language) {
+    prompt += `
+
+**Language Requirement**: Generate all documentation in ${args.language}. Use appropriate terminology and natural expressions for technical concepts in this language. Maintain professional technical writing standards while adapting to the specified language's conventions.`;
+  }
 
   return {
     content: [{ type: 'text', text: prompt }],

@@ -3,7 +3,14 @@ import { zodToJsonSchema } from 'zod-to-json-schema';
 import type { ToolDefinition, ToolInput } from '../../types/index.js';
 
 // Schema definitions
-export const GetSoftwareDocumentationPromptArgsSchema = z.object({});
+export const GetSoftwareDocumentationPromptArgsSchema = z.object({
+  language: z
+    .string()
+    .optional()
+    .describe(
+      'Language for the documentation (e.g., "Japanese", "English", "Spanish"). If not specified, defaults to English.',
+    ),
+});
 
 // Tool definitions
 export const softwareDocgenTools: ToolDefinition[] = [
