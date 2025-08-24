@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import { datetimeModule } from './lib/datetime/index.js';
+import { geminiWebSearchModule } from './lib/gemini-web-search/index.js';
 import { obsidianModule } from './lib/obsidian/index.js';
 import { softwareDocgenModule } from './lib/software-docgen/index.js';
 import { webFetchModule } from './lib/web-fetch/index.js';
@@ -75,6 +76,7 @@ const serverConfig: ServerConfig = {
   version: '1.0.0',
   modules: [
     datetimeModule,
+    geminiWebSearchModule,
     obsidianModule,
     softwareDocgenModule,
     webFetchModule,

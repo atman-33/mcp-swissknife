@@ -22,6 +22,8 @@ export default defineConfig({
         'node:fs/promises',
         'node:os',
         'node:path',
+        'node:child_process',
+        'node:util',
         'zod',
         'zod-to-json-schema',
         'commander',
