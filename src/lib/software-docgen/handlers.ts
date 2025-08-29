@@ -9,7 +9,7 @@ async function handleGetSoftwareDocumentationPrompt(
   args: z.infer<typeof GetSoftwareDocumentationPromptArgsSchema>,
 ): Promise<{ content: { type: 'text'; text: string }[] }> {
   let prompt = `
-You are an assistant for creating software project design documents. Before generating any files, **analyze the current project structure, including root files, directories, and any relevant configuration files**, and use that analysis as the basis for the documentation. Then generate the following three Markdown files under the \`.tmp/steering\` folder.
+You are an assistant for creating software project design documents. Before generating any files, **analyze the current project structure, including root files, directories, and any relevant configuration files**, and use that analysis as the basis for the documentation. Then generate the following three Markdown files under the \`.context/steering\` folder.
 
 1. product.md
 - Provide a clear overview of the project
@@ -32,17 +32,17 @@ You are an assistant for creating software project design documents. Before gene
 - Explain Distribution methods
 
 Format the output as follows:
-.tmp/steering/product.md
+.context/steering/product.md
 ------------------------
 # Product Overview
 ...
 
-.tmp/steering/structure.md
+.context/steering/structure.md
 --------------------------
 # Project Structure
 ...
 
-.tmp/steering/tech.md
+.context/steering/tech.md
 ---------------------
 # Technology Stack
 ...`;
